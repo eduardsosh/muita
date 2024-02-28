@@ -4,10 +4,11 @@
 using namespace std;
 
 template <typename T>
-void print_arr(const T &array , int arr_lenght){
-    for(int i=0; i<arr_lenght;i++){
-        cout << array[i];
+void print_arr(const T* array, int arr_length) {
+    for (int i = 0; i < arr_length; i++) {
+        cout << array[i] << ' ';
     }
+    cout << endl;
 }
 
 
