@@ -84,7 +84,8 @@ void printDeque(const deque<int>& dq) {
 }
 
 int main(){
-    ifstream inFile("customs.in");
+    ifstream inFile("testi/customs.i1");
+    ofstream outFile("customs.out");
 
     if (!inFile.is_open()){
         cerr << "Error opening file!";
@@ -157,10 +158,18 @@ int main(){
     int p_punkti_count = 0;
     int n_punkti_count = 0;
 
-    vector<lodzins> output_rinda;
+    deque<lodzins> output_rinda;
 
-    
+    if(tips != 'P' && tips != 'N'){
+        outFile<<"nothing";
+        return 0;
+    }
     while(tips != 'X'){
+        print_punkti(p_punkti,p_muitnieku_n);
+        print_punkti(n_punkti, n_muitnieku_n);
+        printDeque(p_rinda);
+        printDeque(n_rinda);
+        cout<<endl;
         inFile >> cilveka_id;
         
         //cout << "cehcking "<< cilveka_id << endl;
@@ -172,7 +181,7 @@ int main(){
             if(p_punkti[i].id>0 && p_punkti[i].beigu_laiks <= cilveka_id){
                 output_rinda.push_back(p_punkti[i]);
                 p_punkti_count--;
-                p_punkti[i].beigu_laiks = 0;
+                //p_punkti[i].beigu_laiks = 0;
                 p_punkti[i].id = 0;
             }
         }
@@ -181,7 +190,7 @@ int main(){
             if(n_punkti[i].id>0 && n_punkti[i].beigu_laiks <= cilveka_id){
                 output_rinda.push_back(n_punkti[i]);
                 n_punkti_count--;
-                n_punkti[i].beigu_laiks = 0;
+                //n_punkti[i].beigu_laiks = 0;
                 n_punkti[i].id = 0;
             }
         }
@@ -195,10 +204,22 @@ int main(){
         }
 
         //Check if there are free windows and if are pop from queue to the window
+
+        // vajag beigu laiku
+        // zinam cilveka_id
+        // zinam ieprieksejo beigu laiku
+        // zinam apstrades laiku
+
+
         for(int i = 0; i<p_muitnieku_n;i++){
             if(p_punkti[i].id == 0 && !p_rinda.empty()){
                 p_punkti[i].id = p_rinda.front();
-                p_punkti[i].beigu_laiks = p_rinda.front()+ p_muitnieku_laiki[i];
+
+                if(p_rinda.front() < p_punkti[i].beigu_laiks){
+                    p_punkti[i].beigu_laiks = p_punkti[i].beigu_laiks + p_muitnieku_laiki[i];
+                }else{
+                    p_punkti[i].beigu_laiks = p_rinda.front() + p_muitnieku_laiki[i];
+                }
                 p_punkti_count++;
 
                 p_rinda.pop_front();
@@ -208,19 +229,27 @@ int main(){
         for(int i = 0; i<n_muitnieku_n;i++){
             if(n_punkti[i].id == 0 && !n_rinda.empty()){
                 n_punkti[i].id = n_rinda.front();
-                n_punkti[i].beigu_laiks = n_rinda.front()+ n_muitnieku_laiki[i];
+                if(n_rinda.front() < n_punkti[i].beigu_laiks){
+                    n_punkti[i].beigu_laiks = n_punkti[i].beigu_laiks + n_muitnieku_laiki[i];
+                }else{
+                    n_punkti[i].beigu_laiks = n_rinda.front() + n_muitnieku_laiki[i];
+                }
                 n_punkti_count++;
 
                 n_rinda.pop_front();
             }
         }
         
-        for (int i = 0; i < output_rinda.size(); ++i) {
-            std::cout << output_rinda[i].id << " " << output_rinda[i].beigu_laiks <<endl;
-        }
+        // for (int i = 0; i < output_rinda.size(); ++i) {
+        //     std::cout << output_rinda[i].id << " " << output_rinda[i].beigu_laiks <<endl;
+        // }
 
-        while (!output_rinda.empty()){
-            output_rinda.pop_back();
+        // while (!output_rinda.empty()){
+        //     output_rinda.pop_back();
+        // }
+
+        if(output_rinda.size() > 100050){
+            outFile << output_rinda.front().id << " " << output_rinda.front().beigu_laiks <<endl;
         }
         
 
@@ -230,10 +259,95 @@ int main(){
     // We still need to finish processing remaining windows and emptying the queues.
 
     while(p_punkti_count > 0 || n_punkti_count > 0){
-        //TODO Clearing of the queues
+        print_punkti(p_punkti,p_muitnieku_n);
+        print_punkti(n_punkti, n_muitnieku_n);
+        printDeque(p_rinda);
+        printDeque(n_rinda);
+        //printf("Secondary loop");
+        
+        // Atrodam min laiku no punktiem un uztaisam to cilveka id
+        // Pectam kad pievienojam vinu punktam, pieskaitam vina beigu
+        // laikam minlaiks - cilveka id 
+
+        int minlaiks = 0;
+        for(int i = 0; i < p_muitnieku_n; i++){
+            if(p_punkti[i].beigu_laiks >0 && p_punkti[i].id >0){
+                if(minlaiks == 0){
+                    minlaiks = p_punkti[i].beigu_laiks;
+                    cout<<"setting default"<<endl;
+                }else if(p_punkti[i].beigu_laiks <= minlaiks){
+                    minlaiks = p_punkti[i].beigu_laiks;
+                }
+            }
+        }
+
+        for(int i = 0; i < n_muitnieku_n; i++){
+            if(n_punkti[i].beigu_laiks >0 && n_punkti[i].id > 0){
+                if(minlaiks == 0){
+                    minlaiks = n_punkti[i].beigu_laiks;
+                }else if(n_punkti[i].beigu_laiks <= minlaiks){
+                    minlaiks = n_punkti[i].beigu_laiks;
+                }
+            }
+        }
+
+        cout<<minlaiks<<endl;
+
+        for(int i = 0; i<p_muitnieku_n;i++){
+            if(p_punkti[i].id>0 && p_punkti[i].beigu_laiks <= minlaiks){
+                output_rinda.push_back(p_punkti[i]);
+                p_punkti_count--;
+                p_punkti[i].beigu_laiks = 0;
+                p_punkti[i].id = 0;
+            }
+        }
+
+        for(int i = 0; i<n_muitnieku_n;i++){
+            if(n_punkti[i].id>0 && n_punkti[i].beigu_laiks <= minlaiks){
+                output_rinda.push_back(n_punkti[i]);
+                n_punkti_count--;
+                n_punkti[i].beigu_laiks = 0;
+                n_punkti[i].id = 0;
+            }
+        }
+
+        for(int i = 0; i<p_muitnieku_n;i++){
+            if(p_punkti[i].id == 0 && !p_rinda.empty()){
+                p_punkti[i].id = p_rinda.front();
+                p_punkti[i].beigu_laiks = minlaiks + p_muitnieku_laiki[i] ;
+                p_punkti_count++;
+
+                p_rinda.pop_front();
+            }
+        }
+
+        for(int i = 0; i<n_muitnieku_n;i++){
+            if(n_punkti[i].id == 0 && !n_rinda.empty()){
+                n_punkti[i].id = n_rinda.front();
+                n_punkti[i].beigu_laiks = minlaiks + n_muitnieku_laiki[i];
+                n_punkti_count++;
+
+                n_rinda.pop_front();
+            }
+        }
+
+
+
+        // while (!output_rinda.empty()){
+        //     output_rinda.pop_back();
+        // }
+
+        if(output_rinda.size() > 100050){
+            outFile << output_rinda.front().id << " " << output_rinda.front().beigu_laiks <<endl;
+            output_rinda.pop_front();
+        }
     }
 
-
+    while (!output_rinda.empty()){
+        outFile << output_rinda.front().id << " " << output_rinda.front().beigu_laiks <<endl;
+        output_rinda.pop_front();
+    }
+    
 
     return 0;
 }
