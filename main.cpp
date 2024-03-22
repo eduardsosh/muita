@@ -1,6 +1,8 @@
 #include<iostream>
 #include<fstream>
 #include<deque>
+#include<vector>
+#include<algorithm>
 
 
 typedef unsigned int lint;
@@ -12,6 +14,8 @@ struct lodzins
 {
     lint beigu_laiks;
     lint id;
+    char iebrauceja_tips;
+    int order;
 
     lodzins(){
         beigu_laiks = 0;
@@ -19,6 +23,23 @@ struct lodzins
     }
 };
 
+std::ostream& operator<<(std::ostream& os, const lodzins& obj) {
+    os << "id: " << obj.id << ", laiks: " << obj.beigu_laiks;
+    return os;
+}
+
+bool compare(const lodzins& a, const lodzins& b) {
+    // First, sort by beigu_laiks in descending order
+    if (a.beigu_laiks != b.beigu_laiks)
+        return a.beigu_laiks > b.beigu_laiks;
+
+    // Second, if beigu_laiks is the same, sort by iebrauceja_tips
+    if (a.iebrauceja_tips != b.iebrauceja_tips)
+        return a.iebrauceja_tips < b.iebrauceja_tips;
+
+    // Third, if iebrauceja_tips is the same, sort by order in descending order
+    return a.order > b.order;
+}
 
 
 template <typename T>
@@ -31,16 +52,16 @@ void print_arr(const T* array, int arr_length) {
 
 void print_punkti(const lodzins* array, int arr_lenght){
     for (int i = 0; i < arr_lenght; i++){
-        cout << array[i].id << " " << array[i].beigu_laiks << " | ";
+        std::cout << array[i].id << " " << array[i].beigu_laiks << " | ";
     }
-    cout << endl;
+    std::cout << endl;
     
 }
 
 
 int main(){
-    //ifstream inFile("testi/customs.i7");
-    ifstream inFile("customs.i9");
+    //ifstream inFile("customs.in");
+    ifstream inFile("testi/customs.i7");
     ofstream outFile("customs.out");
 
     if (!inFile.is_open()){
@@ -119,6 +140,8 @@ int main(){
 
     //deque<lodzins> output_rinda;
 
+    vector<lodzins> output_rinda;
+
     if(tips != 'P' && tips != 'N'){
         outFile<<"nothing";
         return 0;
@@ -141,19 +164,36 @@ int main(){
 
         for(int i = 0; i<p_muitnieku_n;i++){
             if(p_punkti[i].id>0 && p_punkti[i].beigu_laiks <= cilveka_id){
-                outFile << p_punkti[i].id << " " << p_punkti[i].beigu_laiks <<endl;
+                output_rinda.push_back(p_punkti[i]);
                 p_punkti_count--;
                 //p_punkti[i].beigu_laiks = 0;
                 p_punkti[i].id = 0;
+                p_punkti[i].iebrauceja_tips = 0;
             }
         }
 
         for(int i = 0; i<n_muitnieku_n;i++){
             if(n_punkti[i].id>0 && n_punkti[i].beigu_laiks <= cilveka_id){
-                outFile << n_punkti[i].id << " " << n_punkti[i].beigu_laiks <<endl;
+                output_rinda.push_back(n_punkti[i]);
                 n_punkti_count--;
                 //n_punkti[i].beigu_laiks = 0;
                 n_punkti[i].id = 0;
+                n_punkti[i].iebrauceja_tips = 0;
+            }
+        }
+
+
+
+        // Sort and output
+        if(!output_rinda.empty()){
+            if(output_rinda.size() > 1){
+                sort(output_rinda.begin(),output_rinda.end(),compare);
+
+
+            }
+            while(!output_rinda.empty()){
+                outFile << output_rinda.back().id << " " << output_rinda.back().beigu_laiks << " " << output_rinda.back().order <<endl;
+                output_rinda.pop_back();
             }
         }
 
@@ -176,6 +216,8 @@ int main(){
         for(int i = 0; i<p_muitnieku_n;i++){
             if(p_punkti[i].id == 0 && !p_rinda.empty()){
                 p_punkti[i].id = p_rinda.front();
+                p_punkti[i].iebrauceja_tips = 'P';
+                p_punkti[i].order = i;
 
                 if(p_rinda.front() < p_punkti[i].beigu_laiks){
                     p_punkti[i].beigu_laiks = p_punkti[i].beigu_laiks + p_muitnieku_laiki[i];
@@ -191,6 +233,10 @@ int main(){
         for(int i = 0; i<n_muitnieku_n;i++){
             if(n_punkti[i].id == 0 && !n_rinda.empty()){
                 n_punkti[i].id = n_rinda.front();
+                n_punkti[i].iebrauceja_tips = 'N';
+                n_punkti[i].order = i;
+
+
                 if(n_rinda.front() < n_punkti[i].beigu_laiks){
                     n_punkti[i].beigu_laiks = n_punkti[i].beigu_laiks + n_muitnieku_laiki[i];
                 }else{
@@ -229,7 +275,7 @@ int main(){
         // laikam minlaiks - cilveka id 
 
         lint minlaiks = 0;
-        for(int i = 0; i < p_muitnieku_n; i++){
+        for(int i = 0; i<p_muitnieku_n;i++){
             if(p_punkti[i].beigu_laiks >0 && p_punkti[i].id >0){
                 if(minlaiks == 0){
                     minlaiks = p_punkti[i].beigu_laiks;
@@ -240,7 +286,7 @@ int main(){
             }
         }
 
-        for(int i = 0; i < n_muitnieku_n; i++){
+        for(int i = 0; i<n_muitnieku_n;i++){
             if(n_punkti[i].beigu_laiks >0 && n_punkti[i].id > 0){
                 if(minlaiks == 0){
                     minlaiks = n_punkti[i].beigu_laiks;
@@ -254,19 +300,32 @@ int main(){
 
         for(int i = 0; i<p_muitnieku_n;i++){
             if(p_punkti[i].id>0 && p_punkti[i].beigu_laiks <= minlaiks){
-                outFile << p_punkti[i].id << " " << p_punkti[i].beigu_laiks <<endl;
+                output_rinda.push_back(p_punkti[i]);
                 p_punkti_count--;
-                p_punkti[i].beigu_laiks = 0;
+                //p_punkti[i].beigu_laiks = 0;
                 p_punkti[i].id = 0;
+                p_punkti[i].iebrauceja_tips = 0;
             }
         }
 
         for(int i = 0; i<n_muitnieku_n;i++){
             if(n_punkti[i].id>0 && n_punkti[i].beigu_laiks <= minlaiks){
-                outFile << n_punkti[i].id << " " << n_punkti[i].beigu_laiks <<endl;
+                output_rinda.push_back(n_punkti[i]);
                 n_punkti_count--;
-                n_punkti[i].beigu_laiks = 0;
+                //n_punkti[i].beigu_laiks = 0;
                 n_punkti[i].id = 0;
+                p_punkti[i].iebrauceja_tips = 0;
+            }
+        }
+
+        // Sort and output
+        if(!output_rinda.empty()){
+            if(output_rinda.size() > 1){
+                sort(output_rinda.begin(),output_rinda.end(),compare);
+            }
+            while(!output_rinda.empty()){
+                outFile << output_rinda.back().id << " " << output_rinda.back().beigu_laiks << " " << output_rinda.back().order <<endl;
+                output_rinda.pop_back();
             }
         }
 
@@ -274,6 +333,9 @@ int main(){
             if(p_punkti[i].id == 0 && !p_rinda.empty()){
                 p_punkti[i].id = p_rinda.front();
                 p_punkti[i].beigu_laiks = minlaiks + p_muitnieku_laiki[i] ;
+                p_punkti[i].iebrauceja_tips = 'P';
+                p_punkti[i].order = i;
+
                 p_punkti_count++;
 
                 p_rinda.pop_front();
@@ -284,6 +346,9 @@ int main(){
             if(n_punkti[i].id == 0 && !n_rinda.empty()){
                 n_punkti[i].id = n_rinda.front();
                 n_punkti[i].beigu_laiks = minlaiks + n_muitnieku_laiki[i];
+                n_punkti[i].iebrauceja_tips = 'N';
+                n_punkti[i].order = i;
+
                 n_punkti_count++;
 
                 n_rinda.pop_front();
