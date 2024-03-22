@@ -4,14 +4,15 @@
 #include<vector>
 #include<queue>
 
+typedef unsigned int lint;
 
 using namespace std;
 
 
 struct lodzins
 {
-    int beigu_laiks;
-    int id;
+    lint beigu_laiks;
+    lint id;
 
     lodzins(){
         beigu_laiks = 0;
@@ -75,7 +76,7 @@ void print_punkti(const lodzins* array, int arr_lenght){
     
 }
 
-void printDeque(const deque<int>& dq) {
+void printDeque(const deque<lint>& dq) {
     cout << "Deque: ";
     for (auto it = dq.begin(); it != dq.end(); ++it) {
         cout << *it << " ";
@@ -84,7 +85,7 @@ void printDeque(const deque<int>& dq) {
 }
 
 int main(){
-    ifstream inFile("testi/customs.i1");
+    ifstream inFile("customs.in");
     ofstream outFile("customs.out");
 
     if (!inFile.is_open()){
@@ -94,7 +95,7 @@ int main(){
 
 
     // Read first 4 numbers into a int[]
-    int first_data[4];
+    lint first_data[4];
 
     for(int i=0; i<4;i++){
         inFile >> first_data[i];
@@ -105,7 +106,7 @@ int main(){
     int default_p_time = first_data[2];
     int default_n_time = first_data[3];
 
-    print_arr<int>(first_data,4);
+    print_arr<lint>(first_data,4);
 
     //Izveidosim muitniekus un ievadisim vinu laikus
 
@@ -114,6 +115,7 @@ int main(){
     int muitnieka_i;
     int muitnieka_laiks;
     
+    // muitnieki katram ir no 0..99]
     int *p_muitnieku_laiki = new int[p_muitnieku_n];
     int *n_muitnieku_laiki = new int[n_muitnieku_n];
 
@@ -136,7 +138,7 @@ int main(){
 
 
     char tips;
-    int cilveka_id = 0;
+    lint cilveka_id = 0;
     inFile >> tips;
 
     if(tips == 'T'){
@@ -152,11 +154,11 @@ int main(){
         }
     }
 
-    deque<int> p_rinda;
-    deque<int> n_rinda;
+    deque<lint> p_rinda;
+    deque<lint> n_rinda;
 
-    int p_punkti_count = 0;
-    int n_punkti_count = 0;
+    lint p_punkti_count = 0;
+    lint n_punkti_count = 0;
 
     deque<lodzins> output_rinda;
 
@@ -165,11 +167,11 @@ int main(){
         return 0;
     }
     while(tips != 'X'){
-        print_punkti(p_punkti,p_muitnieku_n);
-        print_punkti(n_punkti, n_muitnieku_n);
-        printDeque(p_rinda);
-        printDeque(n_rinda);
-        cout<<endl;
+        // print_punkti(p_punkti,p_muitnieku_n);
+        // print_punkti(n_punkti, n_muitnieku_n);
+        // printDeque(p_rinda);
+        // printDeque(n_rinda);
+        // cout<<endl;
         inFile >> cilveka_id;
         
         //cout << "cehcking "<< cilveka_id << endl;
@@ -259,22 +261,22 @@ int main(){
     // We still need to finish processing remaining windows and emptying the queues.
 
     while(p_punkti_count > 0 || n_punkti_count > 0){
-        print_punkti(p_punkti,p_muitnieku_n);
-        print_punkti(n_punkti, n_muitnieku_n);
-        printDeque(p_rinda);
-        printDeque(n_rinda);
+        // print_punkti(p_punkti,p_muitnieku_n);
+        // print_punkti(n_punkti, n_muitnieku_n);
+        // printDeque(p_rinda);
+        // printDeque(n_rinda);
         //printf("Secondary loop");
         
         // Atrodam min laiku no punktiem un uztaisam to cilveka id
         // Pectam kad pievienojam vinu punktam, pieskaitam vina beigu
         // laikam minlaiks - cilveka id 
 
-        int minlaiks = 0;
+        lint minlaiks = 0;
         for(int i = 0; i < p_muitnieku_n; i++){
             if(p_punkti[i].beigu_laiks >0 && p_punkti[i].id >0){
                 if(minlaiks == 0){
                     minlaiks = p_punkti[i].beigu_laiks;
-                    cout<<"setting default"<<endl;
+                    //cout<<"setting default"<<endl;
                 }else if(p_punkti[i].beigu_laiks <= minlaiks){
                     minlaiks = p_punkti[i].beigu_laiks;
                 }
@@ -291,7 +293,7 @@ int main(){
             }
         }
 
-        cout<<minlaiks<<endl;
+        //cout<<minlaiks<<endl;
 
         for(int i = 0; i<p_muitnieku_n;i++){
             if(p_punkti[i].id>0 && p_punkti[i].beigu_laiks <= minlaiks){
