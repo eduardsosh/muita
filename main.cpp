@@ -192,7 +192,7 @@ int main(){
 
             }
             while(!output_rinda.empty()){
-                outFile << output_rinda.back().id << " " << output_rinda.back().beigu_laiks << " " << output_rinda.back().order <<endl;
+                outFile << output_rinda.back().id << " " << output_rinda.back().beigu_laiks << " " << output_rinda.back().order << " " << cilveka_id <<endl;
                 output_rinda.pop_back();
             }
         }
